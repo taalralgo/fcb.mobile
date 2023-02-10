@@ -1,12 +1,14 @@
-import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, ScrollView, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, ScrollView, FlatList, RefreshControl } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react';
 import { Logo } from '../../assets/images';
 import VideoCard from '../components/VideoCard';
 import { noParamGet } from '../api/common';
 
 const HomeScreen = () => {
 
+    const scrollRef = useRef();
     const [videos, setVideos] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         getVideos();
@@ -17,6 +19,18 @@ const HomeScreen = () => {
         setVideos(res.data);
     }
 
+    const refresh = async () => {
+        await getVideos();
+    }
+
+    const goToTop = () => {
+        scrollRef.current.scrollToOffset({
+            offset: 0,
+            animated: true,
+        });
+    }
+
+
     return (
         <SafeAreaView className='bg-dark flex-1'>
             <StatusBar barStyle="light-content" />
@@ -26,12 +40,18 @@ const HomeScreen = () => {
             </View>
 
             <View className='mt-6 mb-8 px-6 flex-row items-center justify-between'>
-                <Text className='font-[r-bold] text-white text-xl'>Videos</Text>
+                <TouchableOpacity onPress={goToTop}>
+                    <Text className='font-[r-bold] text-white text-xl'>Videos</Text>
+                </TouchableOpacity>
                 <TouchableOpacity>
-                    <Text className='font-[r-regular] text-gray text-base'>Voir toutes &gt;</Text>
+                    <Text className='font-[r-regular] text-gray text-base'>Live TV</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
+                ref={scrollRef}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
+                }
                 data={videos}
                 renderItem={({ item }) => <VideoCard title={item.name} image={item.image} />}
                 keyExtractor={item => item.id}
