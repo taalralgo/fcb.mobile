@@ -5,6 +5,7 @@ import VideoCard from '../components/VideoCard';
 import { noParamGet } from '../api/common';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import ChannelCard from '../components/ChannelCard';
 
 const HomeScreen = () => {
 
@@ -13,10 +14,14 @@ const HomeScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [videoSectionIsActive, setVideoSectionIsActive] = useState(true);
 
+    const [channels, setChannels] = useState([]);
+
+
     const navigation = useNavigation();
 
     useEffect(() => {
         getVideos();
+        getChannels();
     }, []);
 
     const getVideos = async () => {
@@ -24,13 +29,12 @@ const HomeScreen = () => {
             setVideos(response.data.data);
         }).catch(error => {
             setVideos([]);
-            console.error(error);
-            // console.error(JSON.stringify(error));
         });
     }
 
     const refresh = async () => {
-        await getVideos();
+        getVideos();
+        getChannels();
     }
 
     const goToTop = () => {
@@ -51,6 +55,17 @@ const HomeScreen = () => {
         setVideoSectionIsActive(false);
     }
 
+    const getChannels = async () => {
+        const res = await noParamGet('/lives');
+        setChannels(res.data);
+    }
+
+    const onClickChannel = (channel) => {
+        navigation.navigate("LiveTV", {
+            channel: channel
+        })
+    }
+
 
     return (
         <SafeAreaView className='bg-dark flex-1'>
@@ -68,15 +83,26 @@ const HomeScreen = () => {
                     <Text className={videoSectionIsActive ? 'font-[r-regular] text-gray text-base' : 'font-[r-bold] text-white text-xl'}>Live TV</Text>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                ref={scrollRef}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
-                }
-                data={videos}
-                renderItem={({ item }) => <VideoCard title={item.name} image={item.image} onPress={() => onClickVideo(item)} key={item.id} />}
-                keyExtractor={item => item.id}
-            />
+            {videoSectionIsActive ?
+                <FlatList
+                    ref={scrollRef}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
+                    }
+                    data={videos}
+                    renderItem={({ item }) => <VideoCard title={item.name} image={item.image} onPress={() => onClickVideo(item)} key={item.id} />}
+                    keyExtractor={item => item.id}
+                /> :
+                <FlatList
+                    ref={scrollRef}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
+                    }
+                    data={channels}
+                    renderItem={({ item }) => <ChannelCard key={item.id} channel={item} onPress={() => onClickChannel(item)} />}
+                    keyExtractor={item => item.id}
+                />}
+
         </SafeAreaView>
     )
 }
