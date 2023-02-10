@@ -3,12 +3,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Logo } from '../../assets/images';
 import VideoCard from '../components/VideoCard';
 import { noParamGet } from '../api/common';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
 
     const scrollRef = useRef();
     const [videos, setVideos] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         getVideos();
@@ -27,6 +30,12 @@ const HomeScreen = () => {
         scrollRef.current.scrollToOffset({
             offset: 0,
             animated: true,
+        });
+    }
+
+    const onClickVideo = (video) => {
+        navigation.navigate("VideoScreen", {
+            video: video
         });
     }
 
@@ -53,7 +62,7 @@ const HomeScreen = () => {
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
                 }
                 data={videos}
-                renderItem={({ item }) => <VideoCard title={item.name} image={item.image} />}
+                renderItem={({ item }) => <VideoCard title={item.name} image={item.image} onPress={() => onClickVideo(item)} />}
                 keyExtractor={item => item.id}
             />
         </SafeAreaView>

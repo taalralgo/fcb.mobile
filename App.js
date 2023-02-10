@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import HomeScreen from './src/screens/HomeScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import VideoScreen from './src/screens/VideoScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,7 @@ export default function App() {
         headerShown: false
       }}>
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="VideoScreen" component={VideoScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
