@@ -18,6 +18,10 @@ const VideoScreen = ({ route, navigation }) => {
 
     const goBack = () => {
         setYTPlaying(false);
+        console.log(videoRef);
+        if (videoRef.current) {
+            videoRef.current.pauseAsync();
+        }
         navigation.goBack();
     }
 
@@ -47,6 +51,7 @@ const VideoScreen = ({ route, navigation }) => {
                         useNativeControls
                         resizeMode="cover"
                         isLooping
+                        shouldPlay={true}
                         onPlaybackStatusUpdate={status => setVideoStatus(() => status)}
                     />
                 ) : (

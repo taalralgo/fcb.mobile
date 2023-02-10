@@ -11,6 +11,7 @@ const HomeScreen = () => {
     const scrollRef = useRef();
     const [videos, setVideos] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [videoSectionIsActive, setVideoSectionIsActive] = useState(true);
 
     const navigation = useNavigation();
 
@@ -24,7 +25,7 @@ const HomeScreen = () => {
         }).catch(error => {
             setVideos([]);
             console.error(error);
-            console.error(JSON.stringify(error));
+            // console.error(JSON.stringify(error));
         });
     }
 
@@ -33,6 +34,7 @@ const HomeScreen = () => {
     }
 
     const goToTop = () => {
+        setVideoSectionIsActive(true);
         scrollRef.current.scrollToOffset({
             offset: 0,
             animated: true,
@@ -43,6 +45,10 @@ const HomeScreen = () => {
         navigation.navigate("VideoScreen", {
             video: video
         });
+    }
+
+    const displayLiveSection = () => {
+        setVideoSectionIsActive(false);
     }
 
 
@@ -56,10 +62,10 @@ const HomeScreen = () => {
 
             <View className='mt-6 mb-8 px-6 flex-row items-center justify-between'>
                 <TouchableOpacity onPress={goToTop}>
-                    <Text className='font-[r-bold] text-white text-xl'>Videos</Text>
+                    <Text className={videoSectionIsActive ? 'font-[r-bold] text-white text-xl' : 'font-[r-regular] text-gray text-base'}>Videos</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text className='font-[r-regular] text-gray text-base'>Live TV</Text>
+                <TouchableOpacity onPress={displayLiveSection}>
+                    <Text className={videoSectionIsActive ? 'font-[r-regular] text-gray text-base' : 'font-[r-bold] text-white text-xl'}>Live TV</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
