@@ -1,9 +1,10 @@
-import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, ScrollView, FlatList, RefreshControl } from 'react-native'
+import { View, Text, SafeAreaView, StatusBar, Image, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react';
 import { Logo } from '../../assets/images';
 import VideoCard from '../components/VideoCard';
 import { noParamGet } from '../api/common';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const HomeScreen = () => {
 
@@ -18,8 +19,13 @@ const HomeScreen = () => {
     }, []);
 
     const getVideos = async () => {
-        const res = await noParamGet(`/videos`);
-        setVideos(res.data);
+        const res = await axios.get(`${process.env.API_URL}/videos`).then(response => {
+            setVideos(response.data.data);
+        }).catch(error => {
+            setVideos([]);
+            console.error(error);
+            console.error(JSON.stringify(error));
+        });
     }
 
     const refresh = async () => {
@@ -62,7 +68,7 @@ const HomeScreen = () => {
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={'#00e344'} title={'LOADING'} titleColor={'#00e344'} tintColor={'#00e344'} />
                 }
                 data={videos}
-                renderItem={({ item }) => <VideoCard title={item.name} image={item.image} onPress={() => onClickVideo(item)} />}
+                renderItem={({ item }) => <VideoCard title={item.name} image={item.image} onPress={() => onClickVideo(item)} key={item.id} />}
                 keyExtractor={item => item.id}
             />
         </SafeAreaView>

@@ -1,44 +1,67 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { Back } from '../../assets/images';
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const VideoScreen = ({ route, navigation }) => {
 
     const videoRef = useRef(null);
     const [videoStatus, setVideoStatus] = useState({});
+    const [YTplaying, setYTPlaying] = useState(true);
 
     const { video } = route.params;
 
     useEffect(() => {
     }, []);
 
+    const goBack = () => {
+        setYTPlaying(false);
+        navigation.goBack();
+    }
+
+    const onStateChange = useCallback((state) => {
+        if (state === "ended") {
+            setYTPlaying(false);
+        }
+    }, []);
+
     return (
         <SafeAreaView className='px-5 flex-1 bg-dark'>
             <View className='flex-row'>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => goBack()}>
                     <Image source={Back} />
                 </TouchableOpacity>
 
             </View>
 
             <View className='my-10'>
-                <Video
-                    ref={videoRef}
-                    className='w-full h-64'
-                    source={{
-                        uri: video.url,
-                    }}
-                    useNativeControls
-                    resizeMode="cover"
-                    isLooping
-                    onPlaybackStatusUpdate={status => setVideoStatus(() => status)}
-                />
+                {video.type === 'vod' ? (
+                    <Video
+                        ref={videoRef}
+                        className='w-full h-64'
+                        source={{
+                            uri: video.url,
+                        }}
+                        useNativeControls
+                        resizeMode="cover"
+                        isLooping
+                        onPlaybackStatusUpdate={status => setVideoStatus(() => status)}
+                    />
+                ) : (
+                    <YoutubePlayer
+                        height={300}
+                        play={YTplaying}
+                        videoId={video.videoId}
+                        onChangeState={onStateChange}
+                    />
+                )}
+
             </View>
-            <Text className='text-white text-justify leading-5'>Vous regardez : {video.name}</Text>
+            {video.type === 'vod' && <Text className='text-white text-justify leading-5'>Vous regardez : {video.name}</Text>}
         </SafeAreaView>
     )
 }
 
-export default VideoScreen
+export default VideoScreen;
