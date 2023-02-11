@@ -18,7 +18,6 @@ const VideoScreen = ({ route, navigation }) => {
 
     const goBack = () => {
         setYTPlaying(false);
-        console.log(videoRef);
         if (videoRef.current) {
             videoRef.current.pauseAsync();
         }
